@@ -1,15 +1,5 @@
 """
 Conversation prompt template.
-
-Now we support
-- Vicuna
-- Koala
-- OpenAssistant/oasst-sft-1-pythia-12b
-- StabilityAI/stablelm-tuned-alpha-7b
-- databricks/dolly-v2-12b
-- THUDM/chatglm-6b
-- project-baize/baize-lora-7B
-- Alpaca/LLaMa
 """
 
 import dataclasses
