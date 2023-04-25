@@ -146,7 +146,7 @@ def add_text(state0, state1, text, request: gr.Request):
 
     if states[0] is None:
         assert states[1] is None
-        weights = ([8, 4, 2, 1] + [1] * 32)[:len(models)]
+        weights = ([1, 1, 1, 1] + [1] * 32)[:len(models)]
         if len(models) > 1:
             weights = weights / np.sum(weights)
             model_left, model_right = np.random.choice(
