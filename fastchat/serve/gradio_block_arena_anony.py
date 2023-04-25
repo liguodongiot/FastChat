@@ -239,26 +239,109 @@ def http_bot_all(
 
 
 def build_side_by_side_ui_anony(models):
-    notice_markdown = """
-# ⚔️  Chatbot Arena ⚔️ 
-Rules:
-- Chat with two anonymous models side-by-side and vote for which one is better!
-- The names of the models will be revealed after your vote.
-- You can continue chating and voting or click "Clear history" to start a new round.
-- A leaderboard will be available soon.
-- [[GitHub]](https://github.com/lm-sys/FastChat) [[Twitter]](https://twitter.com/lmsysorg) [[Discord]](https://discord.gg/h6kCZb72G7)
+    notice_html = """
+<div id="notice" class="prose svelte-1yrv54" data-testid="markdown" style="line-height:0.8em;">
+<h1>⚔️  Chatbot Arena ⚔️</h1>
+<h3>Rules:</h3>
+<ul>
+<li>Chat with two anonymous models side-by-side and vote for which one is better!</li>
+<li>The names of the models will be revealed after your vote.</li>
+<li>You can continue chating and voting or click “Clear history” to start a new round.</li>
+<li>A leaderboard will be available soon.</li>
+<li><a href="https://github.com/lm-sys/FastChat" target="_blank">[GitHub]</a> <a href="https://twitter.com/lmsysorg" target="_blank">[Twitter]</a> <a href="https://discord.gg/h6kCZb72G7" target="_blank">[Discord]</a></li>
+</ul>
+<h3 style="line-height:1.4em;">Terms of use</h3>
+<p style="line-height:1.2em;">By using this service, users are required to agree to the following terms: The service is a research preview intended for non-commercial use only. It only provides limited safety measures and may generate offensive content. It must not be used for any illegal, harmful, violent, racist, or sexual purposes. <strong>The service collects user dialogue data for future research.</strong><br>
+The demo works better on desktop devices with a wide screen.</p>
+</div>
+"""
 
-### Terms of use
-By using this service, users are required to agree to the following terms: The service is a research preview intended for non-commercial use only. It only provides limited safety measures and may generate offensive content. It must not be used for any illegal, harmful, violent, racist, or sexual purposes. **The service collects user dialogue data for future research.**
-The demo works better on desktop devices with a wide screen.
+# """
+# # ⚔️  Chatbot Arena ⚔️ 
+# Rules:
+# - Chat with two anonymous models side-by-side and vote for which one is better!
+# - The names of the models will be revealed after your vote.
+# - You can continue chating and voting or click "Clear history" to start a new round.
+# - A leaderboard will be available soon.
+# - [[GitHub]](https://github.com/lm-sys/FastChat) [[Twitter]](https://twitter.com/lmsysorg) [[Discord]](https://discord.gg/h6kCZb72G7)
+# 
+# ### Terms of use
+# By using this service, users are required to agree to the following terms: The service is a research preview intended for non-commercial use only. It only provides limited safety measures and may generate offensive content. It must not be used for any illegal, harmful, violent, racist, or sexual purposes. **The service collects user dialogue data for future research.**
+# The demo works better on desktop devices with a wide screen.
+# 
+# ### Leaderboard
+# """
 
-### The participated models
-| | |
-| ---- | ---- |
-| [Vicuna](https://vicuna.lmsys.org): a chat assistant fine-tuned from LLaMA on user-shared conversations by LMSYS. | [Koala](https://bair.berkeley.edu/blog/2023/04/03/koala/): a dialogue model for academic research by BAIR |
-| [OpenAssistant (oasst)](https://open-assistant.io/): a chat-based assistant for everyone by LAION. | [Dolly](https://www.databricks.com/blog/2023/04/12/dolly-first-open-commercially-viable-instruction-tuned-llm): an instruction-tuned open large language model by Databricks. |
-| [ChatGLM](https://chatglm.cn/blog): an open bilingual dialogue language model by Tsinghua University | [StableLM](https://github.com/stability-AI/stableLM/): Stability AI language models. |
-| [Alpaca](https://crfm.stanford.edu/2023/03/13/alpaca.html): a model fine-tuned from LLaMA on instruction-following demonstrations by Stanford. | [LLaMA](https://arxiv.org/abs/2302.13971): open and efficient foundation language models by Meta. |
+# """
+# ### The participated models
+# | | |
+# | ---- | ---- |
+# | [Vicuna](https://vicuna.lmsys.org): a chat assistant fine-tuned from LLaMA on user-shared conversations by LMSYS. | [Koala](https://bair.berkeley.edu/blog/2023/04/03/koala/): a dialogue model for academic research by BAIR |
+# | [OpenAssistant (oasst)](https://open-assistant.io/): a chat-based assistant for everyone by LAION. | [Dolly](https://www.databricks.com/blog/2023/04/12/dolly-first-open-commercially-viable-instruction-tuned-llm): an instruction-tuned open large language model by Databricks. |
+# | [ChatGLM](https://chatglm.cn/blog): an open bilingual dialogue language model by Tsinghua University | [StableLM](https://github.com/stability-AI/stableLM/): Stability AI language models. |
+# | [Alpaca](https://crfm.stanford.edu/2023/03/13/alpaca.html): a model fine-tuned from LLaMA on instruction-following demonstrations by Stanford. | [LLaMA](https://arxiv.org/abs/2302.13971): open and efficient foundation language models by Meta. |
+# """
+
+    leaderboard_html = """
+<h3>Leaderboard</h3>
+<table class="rtable " style="line-height:0.0em;">
+<tbody>
+<tr>
+<th class="left" style="width:2.25em;">#</th>
+<th class="">Model Name</th>
+<th class="">Rating</th>
+<th class="">Description</th>
+</tr>
+<tr>
+<td class="left">1</td>
+<td class=""><a href="https://vicuna.lmsys.org">Vicuna</a></td>
+<td class="">1377</td>
+<td class="">a chat assistant fine-tuned from LLaMA on user-shared conversations by LMSYS.</td>
+</tr>
+<tr>
+<td class="left">2</td>
+<td class=""><a href="https://bair.berkeley.edu/blog/2023/04/03/koala/">Koala</a></td>
+<td class="">1049</td>
+<td class="">a dialogue model for academic research by BAIR</td>
+</tr>
+<tr>
+<td class="left">3</td>
+<td class=""><a href="https://crfm.stanford.edu/2023/03/13/alpaca.html">Alpaca</a></td>
+<td class="">1002</td>
+<td class="">a model fine-tuned from LLaMA on instruction-following demonstrations by Stanford.</td>
+</tr>
+<tr>
+<td class="left">4</td>
+<td class=""><a href="https://open-assistant.io/">OpenAssistant(oasst)</a></td>
+<td class="">944</td>
+<td class="">a chat-based assistant for everyone by LAION.</td>
+</tr>
+<tr>
+<td class="left">5</td>
+<td class=""><a href="https://github.com/stability-AI/stableLM/">StableLM</a></td>
+<td class="">934</td>
+<td class="">Stability AI language models.</td>
+</tr>
+<tr>
+<td class="left">6</td>
+<td class=""><a href="https://chatglm.cn/blog">ChatGLM</a></td>
+<td class="">912</td>
+<td class="">an open bilingual dialogue language model by Tsinghua University</td>
+</tr>
+<tr>
+<td class="left">7</td>
+<td class=""><a href="https://www.databricks.com/blog/2023/04/12/dolly-first-open-commercially-viable-instruction-tuned-llm">Dolly</a></td>
+<td class="">899</td>
+<td class="">an instruction-tuned open large language model by Databricks.</td>
+</tr>
+<tr>
+<td class="left">8</td>
+<td class=""><a href="https://arxiv.org/abs/2302.13971">LLaMA</a></td>
+<td class="">883</td>
+<td class="">open and efficient foundation language models by Meta.</td>
+</tr>
+</tbody>
+</table>
 """
 
     learn_more_markdown = """
@@ -270,7 +353,8 @@ The service is a research preview intended for non-commercial use only, subject 
     model_selectors = [None] * num_models
     chatbots = [None] * num_models
 
-    notice = gr.Markdown(notice_markdown, elem_id="notice_markdown")
+    notice = gr.HTML(notice_html, elem_id="notice_html")
+    leaderboard = gr.HTML(leaderboard_html)
 
     with gr.Box(elem_id="share-region"):
         with gr.Row():
