@@ -80,7 +80,7 @@ def leftvote_last_response(
     vote_last_response(
         [state0, state1], "leftvote", [model_selector0, model_selector1], request
     )
-    return ("",) + (disable_btn,) * 3
+    return ("",) + (disable_btn,) * 4
 
 
 def rightvote_last_response(
@@ -90,7 +90,7 @@ def rightvote_last_response(
     vote_last_response(
         [state0, state1], "rightvote", [model_selector0, model_selector1], request
     )
-    return ("",) + (disable_btn,) * 3
+    return ("",) + (disable_btn,) * 4
 
 
 def tievote_last_response(
@@ -100,7 +100,17 @@ def tievote_last_response(
     vote_last_response(
         [state0, state1], "tievote", [model_selector0, model_selector1], request
     )
-    return ("",) + (disable_btn,) * 3
+    return ("",) + (disable_btn,) * 4
+
+
+def bothbad_vote_last_response(
+    state0, state1, model_selector0, model_selector1, request: gr.Request
+):
+    logger.info(f"bothbad_vote (named). ip: {request.client.host}")
+    vote_last_response(
+        [state0, state1], "bothbad_vote", [model_selector0, model_selector1], request
+    )
+    return ("",) + (disable_btn,) * 4
 
 
 def regenerate(state0, state1, request: gr.Request):
@@ -109,12 +119,12 @@ def regenerate(state0, state1, request: gr.Request):
     for i in range(num_models):
         states[i].messages[-1][-1] = None
         states[i].skip_next = False
-    return states + [x.to_gradio_chatbot() for x in states] + [""] + [disable_btn] * 5
+    return states + [x.to_gradio_chatbot() for x in states] + [""] + [disable_btn] * 6
 
 
 def clear_history(request: gr.Request):
     logger.info(f"clear_history (named). ip: {request.client.host}")
-    return [None] * num_models + [None] * num_models + [""] + [disable_btn] * 5
+    return [None] * num_models + [None] * num_models + [""] + [disable_btn] * 6
 
 
 def share_click(state0, state1, model_selector0, model_selector1,
@@ -144,7 +154,7 @@ def add_text(state0, state1, text, request: gr.Request):
             + [
                 no_change_btn,
             ]
-            * 5
+            * 6
         )
 
     if enable_moderation:
@@ -160,7 +170,7 @@ def add_text(state0, state1, text, request: gr.Request):
                 + [
                     no_change_btn,
                 ]
-                * 5
+                * 6
             )
 
     text = text[:1536]  # Hard cut-off
@@ -176,7 +186,7 @@ def add_text(state0, state1, text, request: gr.Request):
         + [
             disable_btn,
         ]
-        * 5
+        * 6
     )
 
 
@@ -190,6 +200,13 @@ def http_bot_all(
     request: gr.Request,
 ):
     logger.info(f"http_bot_all (named). ip: {request.client.host}")
+
+    if state0.skip_next:
+        # This generate call is skipped due to invalid inputs
+        yield (state0, state1, state0.to_gradio_chatbot(),
+            state1.to_gradio_chatbot()) + (no_change_btn,) * 6
+        return
+
     states = [state0, state1]
     model_selector = [model_selector0, model_selector1]
     gen = []
@@ -205,19 +222,18 @@ def http_bot_all(
             try:
                 ret = next(gen[i])
                 states[i], chatbots[i] = ret[0], ret[1]
-                buttons = ret[2:]
                 stop = False
             except StopIteration:
                 pass
-        yield states + chatbots + list(buttons)
+        yield states + chatbots + [disable_btn] * 6
         if stop:
             break
 
     for i in range(10):
         if i % 2 == 0:
-            yield states + chatbots + [disable_btn] * 3 + list(buttons)[3:]
+            yield states + chatbots + [disable_btn] * 4 + [enable_btn] * 2
         else:
-            yield states + chatbots + list(buttons)
+            yield states + chatbots + [enable_btn] * 6
         time.sleep(0.2)
 
 
@@ -255,7 +271,7 @@ The service is a research preview intended for non-commercial use only, subject 
 
     notice = gr.Markdown(notice_markdown, elem_id="notice_markdown")
 
-    with gr.Box(elem_id="share-region"):
+    with gr.Box(elem_id="share-region-named"):
         with gr.Row():
             for i in range(num_models):
                 with gr.Column():
@@ -276,8 +292,9 @@ The service is a research preview intended for non-commercial use only, subject 
         with gr.Box() as button_row:
             with gr.Row():
                 leftvote_btn = gr.Button(value="👈  A is better", interactive=False)
-                tie_btn = gr.Button(value="🤝  Tie", interactive=False)
                 rightvote_btn = gr.Button(value="👉  B is better", interactive=False)
+                tie_btn = gr.Button(value="🤝  Tie", interactive=False)
+                bothbad_btn = gr.Button(value="👎  Both are bad", interactive=False)
 
     with gr.Row():
         with gr.Column(scale=20):
@@ -315,21 +332,27 @@ The service is a research preview intended for non-commercial use only, subject 
     gr.Markdown(learn_more_markdown)
 
     # Register listeners
-    btn_list = [leftvote_btn, rightvote_btn, tie_btn, regenerate_btn, clear_btn]
+    btn_list = [leftvote_btn, rightvote_btn, tie_btn, bothbad_btn,
+                regenerate_btn, clear_btn]
     leftvote_btn.click(
         leftvote_last_response,
         states + model_selectors,
-        [textbox, leftvote_btn, rightvote_btn, tie_btn],
+        [textbox, leftvote_btn, rightvote_btn, tie_btn, bothbad_btn],
     )
     rightvote_btn.click(
         rightvote_last_response,
         states + model_selectors,
-        [textbox, leftvote_btn, rightvote_btn, tie_btn],
+        [textbox, leftvote_btn, rightvote_btn, tie_btn, bothbad_btn],
     )
     tie_btn.click(
         tievote_last_response,
         states + model_selectors,
-        [textbox, leftvote_btn, rightvote_btn, tie_btn],
+        [textbox, leftvote_btn, rightvote_btn, tie_btn, bothbad_btn],
+    )
+    bothbad_btn.click(
+        bothbad_vote_last_response,
+        states + model_selectors,
+        [textbox, leftvote_btn, rightvote_btn, tie_btn, bothbad_btn],
     )
     regenerate_btn.click(
         regenerate, states, states + chatbots + [textbox] + btn_list
@@ -342,7 +365,7 @@ The service is a research preview intended for non-commercial use only, subject 
 
     share_js="""
 function (a, b, c, d) {
-    const captureElement = document.querySelector('#share-region');
+    const captureElement = document.querySelector('#share-region-named');
     html2canvas(captureElement)
         .then(canvas => {
             canvas.style.display = 'none'
